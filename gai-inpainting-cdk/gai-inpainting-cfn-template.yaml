@@ -1,0 +1,394 @@
+Resources:
+  genAiInPainting:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName:
+        Fn::Join:
+          - ""
+          - - gai-inpainting-s3-
+            - Ref: AWS::AccountId
+      Tags:
+        - Key: aws-cdk:auto-delete-objects
+          Value: "true"
+    UpdateReplacePolicy: Delete
+    DeletionPolicy: Delete
+    Metadata:
+      aws:cdk:path: GenAiInpaintStack/genAiInPaintingS3/Resource
+  genAiInPaintingS3Policy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket:
+        Ref: genAiInPainting
+      PolicyDocument:
+        Statement:
+          - Action:
+              - s3:DeleteObject*
+              - s3:GetBucket*
+              - s3:List*
+            Effect: Allow
+            Principal:
+              AWS:
+                Fn::GetAtt:
+                  - CustomS3AutoDeleteObjectsCustomResourceProviderRole
+                  - Arn
+            Resource:
+              - Fn::GetAtt:
+                  - genAiInPainting
+                  - Arn
+              - Fn::Join:
+                  - ""
+                  - - Fn::GetAtt:
+                        - genAiInPainting
+                        - Arn
+                    - /*
+        Version: "2012-10-17"
+    Metadata:
+      aws:cdk:path: GenAiInpaintStack/genAiInPaintingS3/Policy/Resource
+  genAiInPaintingS3AutoDeleteObjectsCustomResource:
+    Type: Custom::S3AutoDeleteObjects
+    Properties:
+      ServiceToken:
+        Fn::GetAtt:
+          - CustomS3AutoDeleteObjectsCustomResourceProviderHandler
+          - Arn
+      BucketName:
+        Ref: genAiInPainting
+    DependsOn:
+      - genAiInPaintingS3Policy
+    UpdateReplacePolicy: Delete
+    DeletionPolicy: Delete
+    Metadata:
+      aws:cdk:path: GenAiInpaintStack/genAiInPaintingS3/AutoDeleteObjectsCustomResource/Default
+  CustomS3AutoDeleteObjectsCustomResourceProviderRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+      ManagedPolicyArns:
+        - Fn::Sub: arn:${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+    Metadata:
+      aws:cdk:path: GenAiInpaintStack/Custom::S3AutoDeleteObjectsCustomResourceProvider/Role
+  CustomS3AutoDeleteObjectsCustomResourceProviderHandler:
+    Type: AWS::Lambda::Function
+    Properties:
+      Code:
+        S3Bucket:
+          Fn::Sub: cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}
+        S3Key: 6babbac1f25446ab4660ead0ad5972e3a7742f50c6d8326af98a8bcd5d485335.zip
+      Timeout: 900
+      MemorySize: 128
+      Handler: __entrypoint__.handler
+      Role:
+        Fn::GetAtt:
+          - CustomS3AutoDeleteObjectsCustomResourceProviderRole
+          - Arn
+      Runtime: nodejs14.x
+      Description:
+        Fn::Join:
+          - ""
+          - - "Lambda function for auto-deleting objects in "
+            - Ref: genAiInPainting
+            - " S3 bucket."
+    DependsOn:
+      - CustomS3AutoDeleteObjectsCustomResourceProviderRole
+    Metadata:
+      aws:cdk:path: GenAiInpaintStack/Custom::S3AutoDeleteObjectsCustomResourceProvider/Handler
+      aws:asset:path: asset.6babbac1f25446ab4660ead0ad5972e3a7742f50c6d8326af98a8bcd5d485335
+      aws:asset:property: Code
+  genAiS3DeployAwsCliLayer:
+    Type: AWS::Lambda::LayerVersion
+    Properties:
+      Content:
+        S3Bucket:
+          Fn::Sub: cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}
+        S3Key: c409e6c5845f1f349df8cd84e160bf6f1c35d2b060b63e1f032f9bd39d4542cc.zip
+      Description: /opt/awscli/aws
+    Metadata:
+      aws:cdk:path: GenAiInpaintStack/genAiS3Deploy/AwsCliLayer/Resource
+      aws:asset:path: asset.c409e6c5845f1f349df8cd84e160bf6f1c35d2b060b63e1f032f9bd39d4542cc.zip
+      aws:asset:is-bundled: false
+      aws:asset:property: Content
+  CustomCDKBucketDeploymentServiceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+        Version: "2012-10-17"
+      ManagedPolicyArns:
+        - Fn::Join:
+            - ""
+            - - "arn:"
+              - Ref: AWS::Partition
+              - :iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+    Metadata:
+      aws:cdk:path: GenAiInpaintStack/Custom::CDKBucketDeployment/ServiceRole/Resource
+  CustomCDKBucketDeploymentServiceRoleDefaultPolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Action:
+              - s3:GetBucket*
+              - s3:GetObject*
+              - s3:List*
+            Effect: Allow
+            Resource:
+              - Fn::Join:
+                  - ""
+                  - - "arn:"
+                    - Ref: AWS::Partition
+                    - ":s3:::"
+                    - Fn::Sub: cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}
+                    - /*
+              - Fn::Join:
+                  - ""
+                  - - "arn:"
+                    - Ref: AWS::Partition
+                    - ":s3:::"
+                    - Fn::Sub: cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}
+          - Action:
+              - s3:Abort*
+              - s3:DeleteObject*
+              - s3:GetBucket*
+              - s3:GetObject*
+              - s3:List*
+              - s3:PutObject
+              - s3:PutObjectLegalHold
+              - s3:PutObjectRetention
+              - s3:PutObjectTagging
+              - s3:PutObjectVersionTagging
+            Effect: Allow
+            Resource:
+              - Fn::GetAtt:
+                  - genAiInPainting
+                  - Arn
+              - Fn::Join:
+                  - ""
+                  - - Fn::GetAtt:
+                        - genAiInPainting
+                        - Arn
+                    - /*
+        Version: "2012-10-17"
+      PolicyName: CustomCDKBucketDeploymentServiceRoleDefaultPolicy
+      Roles:
+        - Ref: CustomCDKBucketDeploymentServiceRole
+    Metadata:
+      aws:cdk:path: GenAiInpaintStack/Custom::CDKBucketDeployment/ServiceRole/DefaultPolicy/Resource
+  CustomCDKBucketDeployment:
+    Type: AWS::Lambda::Function
+    Properties:
+      Code:
+        S3Bucket:
+          Fn::Sub: cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}
+        S3Key: 6ddcf10002539818a9256eff3fb2b22aa09298d8f946e26ba121c175a600c44e.zip
+      Role:
+        Fn::GetAtt:
+          - CustomCDKBucketDeploymentServiceRole
+          - Arn
+      Handler: index.handler
+      Layers:
+        - Ref: genAiS3DeployAwsCliLayer
+      Runtime: python3.9
+      Timeout: 900
+    DependsOn:
+      - CustomCDKBucketDeploymentServiceRoleDefaultPolicy
+      - CustomCDKBucketDeploymentServiceRole
+    Metadata:
+      aws:cdk:path: GenAiInpaintStack/Custom::CDKBucketDeployment/Resource
+      aws:asset:path: asset.6ddcf10002539818a9256eff3fb2b22aa09298d8f946e26ba121c175a600c44e
+      aws:asset:is-bundled: false
+      aws:asset:property: Code
+  genAiInPaintingNotebookAccessRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: sagemaker.amazonaws.com
+        Version: "2012-10-17"
+      ManagedPolicyArns:
+        - Fn::Join:
+            - ""
+            - - "arn:"
+              - Ref: AWS::Partition
+              - :iam::aws:policy/AmazonSageMakerFullAccess
+    Metadata:
+      aws:cdk:path: GenAiInpaintStack/genAiInPaintingNotebookAccessRole/Resource
+  genAiInPaintingNotebookAccessRoleDefaultPolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Action:
+              - logs:*
+              - sagemaker:*
+            Effect: Allow
+            Resource: "*"
+          - Action: s3:*
+            Effect: Allow
+            Resource:
+              Fn::Join:
+                - ""
+                - - Fn::GetAtt:
+                      - genAiInPainting
+                      - Arn
+                  - /*
+          - Action: ecr:BatchGetImage
+            Effect: Allow
+            Resource: arn:aws:ecr:::*
+          - Action: codecommit:*
+            Effect: Allow
+            Resource: "*"
+          - Action:
+              - s3:ListAllMyBuckets
+              - s3:ListBucket
+            Effect: Allow
+            Resource: arn:aws:s3:::*
+          - Action: iam:PassRole
+            Effect: Allow
+            Resource:
+              Fn::Join:
+                - ""
+                - - arn:aws:iam::*:role/
+                  - Ref: genAiInPaintingNotebookAccessRole
+        Version: "2012-10-17"
+      PolicyName: genAiInPaintingNotebookAccessRoleDefaultPolicy
+      Roles:
+        - Ref: genAiInPaintingNotebookAccessRole
+    Metadata:
+      aws:cdk:path: GenAiInpaintStack/genAiInPaintingNotebookAccessRole/DefaultPolicy/Resource
+  gaiLcConfig:
+    Type: AWS::SageMaker::NotebookInstanceLifecycleConfig
+    Properties:
+      NotebookInstanceLifecycleConfigName: gaiLcConfig
+      OnStart:
+        - Content:
+            Fn::Base64: !Sub |
+              #!/bin/bash
+              set -e
+              # Clone CodeCommit/GitHub repository
+              cd /home/ec2-user/SageMaker/
+              git clone https://github.com/aws-samples/sagemaker-generative-ai-for-product-placement-using-images
+              mv sagemaker-generative-ai-for-product-placement-using-images/gai-inpainting-cdk/notebooks/* .
+              rm -rf sagemaker-generative-ai-for-product-placement-using-images
+              sudo chmod -R 777 /home/ec2-user/SageMaker
+  genAiInPaintingNotebookInstance:
+    Type: AWS::SageMaker::NotebookInstance
+    Properties:
+      InstanceType: ml.c5.2xlarge
+      RoleArn:
+        Fn::GetAtt:
+          - genAiInPaintingNotebookAccessRole
+          - Arn
+      LifecycleConfigName: gaiLcConfig
+      NotebookInstanceName: genAiInPaintingNotebookInstance
+      VolumeSizeInGB: 16
+    Metadata:
+      aws:cdk:path: GenAiInpaintStack/genAiInPaintingNotebookInstance
+  CDKMetadata:
+    Type: AWS::CDK::Metadata
+    Properties:
+      Analytics: v2:deflate64:H4sIAAAAAAAA/21Q0WrDMAz8lr673tqOvbcZg0EZJYW9BsdRUy2ONSxnJZj8+5w4Sxns6U4nodNpK5+e5eNK3Xitq2ZtsJTh7JVuRJSKwDsZDp1uwIvsYmeW4EQGdX+X5zoVB8UwCN4VoYIvQ30L1svUelkEoZjBs9yPMAij2rJSMsSNR9WD+wDHSFac0dYGPNnXzmo/KguJo798EKhaGXIyMMoT3k9MLF6kamhVA26yeScPJVHzZtkrq+GIF9C9NpCRvWAt/hkZBpF17KnNgalzOpkt/E/r5OgbK3BiChi/Wsckc8zCjBGL+GRtUO5vnBmcUo/7on2FKdSp91eyDzu52cjt6pMR166zHluQecIfwiKbrMIBAAA=
+    Metadata:
+      aws:cdk:path: GenAiInpaintStack/CDKMetadata/Default
+    Condition: CDKMetadataAvailable
+Conditions:
+  CDKMetadataAvailable:
+    Fn::Or:
+      - Fn::Or:
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - af-south-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-east-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-northeast-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-northeast-2
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-south-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-southeast-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-southeast-2
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ca-central-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - cn-north-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - cn-northwest-1
+      - Fn::Or:
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - eu-central-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - eu-north-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - eu-south-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - eu-west-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - eu-west-2
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - eu-west-3
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - me-south-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - sa-east-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - us-east-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - us-east-2
+      - Fn::Or:
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - us-west-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - us-west-2
+Parameters:
+  BootstrapVersion:
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /cdk-bootstrap/hnb659fds/version
+    Description: Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]
+Rules:
+  CheckBootstrapVersion:
+    Assertions:
+      - Assert:
+          Fn::Not:
+            - Fn::Contains:
+                - - "1"
+                  - "2"
+                  - "3"
+                  - "4"
+                  - "5"
+                - Ref: BootstrapVersion
