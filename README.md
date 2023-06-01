@@ -10,6 +10,9 @@ use the third party `diffusers` project. The `diffusers` project's licensing inc
 ## AWS Architecture:
 ![AWSArchitecture](assets/AWSArchitecture.png)
 
+## Data Flow and Image Generations
+![Flow](assets/Flow.png)
+
 ## AWS CloudFormation Stack Creation
 The AWS CloudFormation Stack can be created using 2 methods: (1) Using Template or (2) Using AWS CDK. Both the methods are described as follows:
 
