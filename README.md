@@ -15,7 +15,7 @@ The AWS CloudFormation Stack can be created using 2 methods: (1) Using Template 
 
 1. Create Stack using AWS CloudFormation:
     - Choose **Launch Stack** and (if prompted) log into your AWS account:
-    [![Launch Stack](assets/LaunchStack.png)](https://console.aws.amazon.com/cloudformation/home#/stacks/create/review?templateURL=https://raw.githack.com/aws-samples/sagemaker-generative-ai-for-product-placement-using-images/main/gai-inpainting-cdk/gai-inpainting-cfn-template.yaml)
+    [![Launch Stack](assets/LaunchStack.png)](https://console.aws.amazon.com/cloudformation/home#/stacks/create/review?templateURL=https://s3-external-1.amazonaws.com/cf-templates-qg4v7e8xi7oj-us-east-1/2023152wbr-gai-inpainting-cfn-template.yamlmdkmfpbtgio)
     - Select a unique Stack Name, ackowledge creation of IAM resources, create the stack and wait for a few minutes for it to be successfully deployed
         1. ![Step1_StackName](assets/Step1_StackName.png)
         2. ![Step2_StackIAM](assets/Step2_StackIAM.png)
