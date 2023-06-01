@@ -279,7 +279,7 @@ Resources:
               set -e
               # Clone CodeCommit/GitHub repository
               cd /home/ec2-user/SageMaker/
-              git clone git@github.com:aws-samples/sagemaker-generative-ai-for-product-placement-using-images.git
+              git clone https://github.com/aws-samples/sagemaker-generative-ai-for-product-placement-using-images.git
               mv sagemaker-generative-ai-for-product-placement-using-images/gai-inpainting-cdk/notebooks/* .
               rm -rf sagemaker-generative-ai-for-product-placement-using-images
               sudo chmod -R 777 /home/ec2-user/SageMaker
