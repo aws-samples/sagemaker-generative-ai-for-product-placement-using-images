@@ -232,7 +232,10 @@ Resources:
         Statement:
           - Action:
               - logs:*
-              - sagemaker:*
+              - sagemaker:Describe*
+              - sagemaker:*Model*
+              - sagemaker:*Endpoint*
+              - sagemaker:*ProcessingJob*
             Effect: Allow
             Resource: "*"
           - Action: s3:*
@@ -247,9 +250,6 @@ Resources:
           - Action: ecr:BatchGetImage
             Effect: Allow
             Resource: arn:aws:ecr:::*
-          - Action: codecommit:*
-            Effect: Allow
-            Resource: "*"
           - Action:
               - s3:ListAllMyBuckets
               - s3:ListBucket

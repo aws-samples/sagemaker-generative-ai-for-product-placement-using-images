@@ -56,7 +56,7 @@ class GenAiInpaintStack(Stack):
 
         # Add necessary permissions to the role
         nRole.add_to_policy(iam.PolicyStatement(effect=iam.Effect.ALLOW, actions=["logs:*"], resources=["*"]))
-        nRole.add_to_policy(iam.PolicyStatement(effect=iam.Effect.ALLOW, actions=["sagemaker:*"], resources=["*"]))
+        nRole.add_to_policy(iam.PolicyStatement(effect=iam.Effect.ALLOW, actions=["sagemaker:Describe*", "sagemaker:*Model*", "sagemaker:*Endpoint*", "sagemaker:*ProcessingJob*"], resources=["*"]))
         nRole.add_to_policy(iam.PolicyStatement(effect=iam.Effect.ALLOW, actions=["s3:*"], resources=[self.bucket.bucket_arn + "/*"]))
         nRole.add_to_policy(iam.PolicyStatement(effect=iam.Effect.ALLOW, actions=["ecr:BatchGetImage"], resources=["arn:aws:ecr:::*"]))
         nRole.add_to_policy(iam.PolicyStatement(effect=iam.Effect.ALLOW, actions=["s3:ListAllMyBuckets", "s3:ListBucket"], resources=["arn:aws:s3:::*"]))
