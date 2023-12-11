@@ -78,8 +78,8 @@ Resources:
     Properties:
       Code:
         S3Bucket:
-          Fn::Sub: cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}
-        S3Key: 6babbac1f25446ab4660ead0ad5972e3a7742f50c6d8326af98a8bcd5d485335.zip
+          Fn::Sub: aws-blogs-artifacts-public
+        S3Key: artifacts/ML-14623/CfnTemplate/6babbac1f25446ab4660ead0ad5972e3a7742f50c6d8326af98a8bcd5d485335.zip
       Timeout: 900
       MemorySize: 128
       Handler: __entrypoint__.handler
