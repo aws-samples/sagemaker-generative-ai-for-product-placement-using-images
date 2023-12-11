@@ -105,8 +105,8 @@ Resources:
     Properties:
       Content:
         S3Bucket:
-          Fn::Sub: cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}
-        S3Key: c409e6c5845f1f349df8cd84e160bf6f1c35d2b060b63e1f032f9bd39d4542cc.zip
+          Fn::Sub: aws-blogs-artifacts-public
+        S3Key: artifacts/ML-14623/CfnTemplate/c409e6c5845f1f349df8cd84e160bf6f1c35d2b060b63e1f032f9bd39d4542cc.zip
       Description: /opt/awscli/aws
     Metadata:
       aws:cdk:path: GenAiInpaintStack/genAiS3Deploy/AwsCliLayer/Resource
