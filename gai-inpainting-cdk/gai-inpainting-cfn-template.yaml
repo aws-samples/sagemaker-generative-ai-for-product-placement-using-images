@@ -188,8 +188,8 @@ Resources:
     Properties:
       Code:
         S3Bucket:
-          Fn::Sub: cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}
-        S3Key: 6ddcf10002539818a9256eff3fb2b22aa09298d8f946e26ba121c175a600c44e.zip
+          Fn::Sub: aws-blogs-artifacts-public
+        S3Key: artifacts/ML-14623/CfnTemplate/6ddcf10002539818a9256eff3fb2b22aa09298d8f946e26ba121c175a600c44e.zip
       Role:
         Fn::GetAtt:
           - CustomCDKBucketDeploymentServiceRole
